@@ -83,5 +83,6 @@ real_genders$prediction <- predict(rf, extractFeatures(DT_test)[, !'Gender', wit
 imp <- importance(rf, type=1)
 featureImportance <- data.frame(Feature=row.names(imp), Importance=imp[,1])
 
-# some testing
-View(DT[apply(DT[, Sc_cols, with = FALSE], 1, mean, na.rm = TRUE) == 1])
+
+summary(DT[,Sd_cols, with=F])
+DT[,Sd_cols, with=F]<0.01
