@@ -30,11 +30,11 @@ Sc_cols <- c(paste0('Sc0', 1:9), paste0('Sc', 10:32))
 Sd_cols <- c(paste0('Du0', 1:9), paste0('Du', 10:32))
 
 
-#  only Same or Not the Same , Same= 1 not the same =0
+#  only Same or Not the Same  answers given , Same= 1 not the same =0
 #
 #
-if (sum(apply(DT[, Sa_cols, with = FALSE]=="Same", 1, mean, na.rm = TRUE) %in% c(0,1))  >0){
-  IND1<-which(apply(DT[, Sa_cols, with = FALSE]=="Same", 1, mean, na.rm = TRUE) %in% c(0,1))
+if (sum(apply(DT[, Sa_cols, with = FALSE]=="Same", 1,function (x) mean(x, na.rm=TRUE )%in%c(0,1)))>0){
+  IND1<-which( apply(DT[, Sa_cols, with = FALSE]=="Same", 1,function (x) mean(x, na.rm=TRUE )%in%c(0,1)) )
   DT<-DT[!IND1,]
 }
 
@@ -54,4 +54,5 @@ if(sum(DT$mean_duration_person<acceptable_duration)>0)
   DT<-DT[mean_duration_person>acceptable_duration,]
 #
 #
+DT$avgScore<-DT$Score/DT$QuestionsCompleted
 
