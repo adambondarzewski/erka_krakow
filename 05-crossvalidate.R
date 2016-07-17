@@ -41,3 +41,6 @@ x<-cross_validation(Data,fun_fit,fun_predict,fun_error,number_subsamples,size_su
 
 stopifnot( x-var(DT$avgScore)<0)
 
+
+
+
