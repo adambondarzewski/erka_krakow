@@ -54,4 +54,5 @@ if(sum(DT$mean_duration_person<acceptable_duration)>0)
   DT<-DT[mean_duration_person>acceptable_duration,]
 #
 #
+DT$avgScore<-DT$Score/DT$QuestionsCompleted
 
