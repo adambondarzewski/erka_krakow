@@ -15,15 +15,20 @@ DT<-DT[QuestionsCompleted> 16]
 comparison<-table(DT$Score, DT$Gender)
 ############################3333
 # Comparing Score Distributions
-library(sm)
+#library(sm)
 # create value labels
-cyl.f <- factor(DT$Gender, levels= c("F","M"),
-                labels = c("Female",  "Male"))
+#cyl.f <- factor(DT$Gender, levels= c("F","M"),
+ #               labels = c("Female",  "Male"))
+
+
+
+
 sum(is.na(DT$Score))
 sum(is.na(DT$Gender))
+
 # plot densities
-sm.density.compare(DT$Score/DT$QuestionsCompleted, cyl.f, xlab="Score")
-title(main="Dstribution of Scores by gender")
+#sm.density.compare(DT$Score/DT$QuestionsCompleted, cyl.f, xlab="Score")
+#title(main="Dstribution of Scores by gender")
 
 Sa_cols <- c(paste0('An0', 1:9), paste0('An', 10:32))
 Sc_cols <- c(paste0('Sc0', 1:9), paste0('Sc', 10:32))

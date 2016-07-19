@@ -3,7 +3,7 @@ id_vars <- c('Name', 'AgeYears', 'AgeMonths', 'Gender', 'ClientId'
              , 'InstitutionId', 'Institution', 'GroupId'
              , 'Group', 'SubGroupId1', 'SubGroupId2'
              , 'SubGroup1', 'SubGroup2', 'TestResultId'
-             , 'DateCompleted', 'DaysSince', 'Score', 'Duration', 'QuestionsCompleted')
+             , 'DateCompleted', 'DaysSince', 'Score','avgScore','Duration', 'QuestionsCompleted')
 
 names_answers <- names(DT)[(names(DT) %in% id_vars) | (names(DT) %like% 'An')]
 DT_answers <- DT[, names_answers, with = FALSE]
