@@ -46,9 +46,10 @@ mean_duration_qestion<-apply(DT[, Sd_cols, with = FALSE], 2, mean, na.rm = TRUE)
 DT$mean_duration_person<-apply(DT[, Sd_cols, with = FALSE], 1, mean, na.rm = TRUE) 
 
 
-boxplot(DT$mean_duration_person)
+#
 #acceptable_duration - a feasible number for actually performing the task.
 acceptable_duration=2
+
 #throwing out the duration
 if(sum(DT$mean_duration_person<acceptable_duration)>0)
   DT<-DT[mean_duration_person>acceptable_duration,]
