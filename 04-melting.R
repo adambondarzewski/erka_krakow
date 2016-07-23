@@ -3,7 +3,12 @@ id_vars <- c('Name', 'AgeYears', 'AgeMonths', 'Gender', 'ClientId'
              , 'InstitutionId', 'Institution', 'GroupId'
              , 'Group', 'SubGroupId1', 'SubGroupId2'
              , 'SubGroup1', 'SubGroup2', 'TestResultId'
+<<<<<<< HEAD
              , 'DateCompleted', 'DaysSince', 'Score','avgScore','Duration', 'QuestionsCompleted')
+=======
+             , 'DateCompleted', 'DaysSince', 'Score', 'avgScore', 'Duration', 'mean_duration_person'
+             , 'QuestionsCompleted')
+>>>>>>> 348faa56994072e8498b69a18f64705191f98882
 
 names_answers <- names(DT)[(names(DT) %in% id_vars) | (names(DT) %like% 'An')]
 DT_answers <- DT[, names_answers, with = FALSE]
@@ -31,6 +36,6 @@ DT_melted <- merge(merge(DT_answers_melted, DT_durations_melted, by = c(id_vars,
 library(dplyr)
 
 DT_melted[, Score_answers := Score/QuestionsCompleted]
-DT_melted[, Score_groups := cut(Score_answers, breaks = c(seq(0, 1, by = .1)))]
+DT_melted[, Score_bins := cut(Score_answers, breaks = c(seq(0, 1, by = .1)))]
 
-arrange(DT_melted[, .(duration = mean(Duration_question, na.rm = TRUE)), by = Score_groups], Score_groups)
+arrange(DT_melted[, .(duration = mean(Duration_question, na.rm = TRUE)), by = Score_bins], Score_bins)
