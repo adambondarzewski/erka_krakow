@@ -31,7 +31,8 @@ prop.table(table(DT_train$Child, DT_train$Survived))
 
 
 ##############################################################
-a1<-apply(DT[ Gender=='M', Sd_cols, with = FALSE], 2, mean, na.rm = TRUE) 
+a1<-apply(DT[ Gender=='M', Sd_cols, with = FALSE], 1, mean, na.rm = TRUE) 
+
 a2<-apply(DT[ Gender=='F', Sd_cols, with = FALSE], 2, mean, na.rm = TRUE) 
 a1/a2
 
