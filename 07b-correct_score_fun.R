@@ -3,6 +3,11 @@ Sd_corrected_cols <- c(paste0('corrected_Du0', 1:9), paste0('corrected_Du', 10:3
 
 DT_shrinked <- DT[, c(Sc_cols, Sd_corrected_cols), with = FALSE]
 
+
+# temporary
+DT_train_shrinked <- copy(DT_shrinked)
+DT_train <- copy(DT)
+
 # produce 
 
 score <- function(row, w, v, lambda, penalty = function(x) x^2) {
@@ -19,11 +24,13 @@ score <- function(row, w, v, lambda, penalty = function(x) x^2) {
 
 #' @param DT_train data.tabe; should be subset of DT_shrinked
 #' 
-calculate_score <- function(DT_train, w, v, lambda, score_fun = score) { 
+calculate_score <- function(  w, v, lambda, score_fun = score
+                            , DT_train = DT_train
+                            , DT_train_shrinked = DT_train_shrinked) {
     
-    DT_train$score_measured <- apply(DT_train, 1, function(x) {score_fun(x, w = w, v = v, lambda)})
+    DT_train$score_measured <- apply(DT_train_shrinked, 1, function(x) {score_fun(x, w = w, v = v, lambda)})
     
-    DT_groups <- DT[, .(score_measured = mean(score_measured), group_count = .N)
+    DT_groups <- DT_train[, .(score_measured = mean(score_measured), group_count = .N)
                     , by =.(Gender, SubGroup1)]
     
     DT_groups_counts <- DT_groups[, .(group_count = sum(group_count)), by = SubGroup1]
@@ -42,14 +49,17 @@ calculate_score <- function(DT_train, w, v, lambda, score_fun = score) {
   return(DT_groups_casted[, sum(gender_gap, na.rm = TRUE)])
 }
 
-calculate_score_wrapper <- function(pars) {
+calculate_score_wrapper <- function( pars
+                                    , DT_train = DT_train
+                                    , DT_train_shrinked = DT_train_shrinked) {
   
   w <- pars[1:32]
   v <- pars[33:64]
     
-  calculate_score(DT_train, w = w, v = v, lambda = 1)
+  calculate_score(DT_train = DT_train, DT_train_shrinked = DT_train_shrinked, w = w, v = v, lambda = 1)
 }
 
 answer <- optim(par = rep(1/32, 64), calculate_score_wrapper
-                , lower = rep(0, 64)
-                , upper = rep(1, 64))
+                , DT_train_shrinked = DT_train_shrinked
+                , DT_train = DT_train
+                , control = list(maxit = 10))
