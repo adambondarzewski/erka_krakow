@@ -1,0 +1,161 @@
+---
+title: "REDME: Short explanation about the results."
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+```
+##Introduction
+
+The final script to fit the data is in "Apply to data Frame.R"
+
+
+## Reading and cleaning the data
+File "01-data_load.R" contains the code to load  and clean the data, 
+As the durations are influenced by the connection speed (Band) we correct duration values based on the simple linear model
+Duratiion~Band+Age +Gender. Then we extract the impact on the band from the duration. the modified data are also saved in the "Final_results.RData" file.
+
+```{r , include=TRUE}
+
+DT <- as.data.table(read.csv('http://doitprofiler.com/wp-content/uploads/2016/06/RKrakowFinalData.csv', stringsAsFactors = F))
+source("01-data_load.R")
+summary(model1)
+```
+
+
+
+## Predicting the gender from the set of data
+
+To answer the question whether there are real differences between Male and Females we try to classify individuals into gender classes based on the answers and their duration. To do this we apply a random forest algorithm for classification.
+The plot presents the importance of the variables in predicting gender
+
+
+
+```{r RF, include=TRUE}
+source("03-predict_gender_random_forest.R")
+```
+```{r , echo=FALSE, include=TRUE}
+
+sum(real_genders$real_gender==real_genders$prediction)/sample_size
+p#plot
+```
+
+
+We achieve rate of prediction :61%
+which is more then randomly guessing. This  shows that there is some difference between genders in the test results and strategies.
+
+
+## Predicting the score from the set of data
+
+To find out which variables actually are good predictors of the final score we apply a regression method together with random forest.
+The below plot presents the importance of the single answers and durations as well as gender in predicting scores.
+```{r RF score, include=FALSE}
+source("03-predict_score_random_forest.R")
+```
+
+```{r , echo=TRUE}
+
+p#plot of importance without scores on single questions
+
+p1# plot of importance without scores on single questions
+```
+
+As one can observe on the picture the gender is not helpful in predicting final score. Several question's durations are much more important then the Gender.
+It led us to the conclusion that the gender is not pivotal to the test results. Longer durations on a specific questions may indicate that a person is applying a different startegy.  Thus the difference acress genders appear to be a difference of applie strategies.
+
+
+
+
+
+## Calculating scores
+The objective function we minimized is the absolute sum of the  mean differences between genders across the   80 subgroups.
+
+We applied several approaches to minimize the objective functions and present two in the final code. This code is in the file "07-correct_score_fun". The optimization procedure is implemented there.
+
+Function "score" calculate the metric given 32 weights, each to a different question. It additionally penalizes the devation from equally weighted solution. This is done to decrease the overfitting of the data.
+
+```{r , echo=TRUE}
+
+score <- function(row, w, v, lambda, penalty = function(x) abs(x)) {
+  
+  length_answers <- length(na.omit(row[Sc_cols]))
+  
+  output <- w * row[Sc_cols]  + lambda * penalty(w - 1/32)
+  
+  output <- output/length_answers
+  
+  return(sum(output, na.rm = TRUE))
+}#plot of importance without scores on single questions
+
+
+```
+Function "score3" calculate the metric given 64 weights and includes also corrected durations. In the final score we reward quick answers to the questions. The metod used is an application of a lasso regression- we penalize the absolute value of the parameters to get a sparse representation.
+
+
+```{r , echo=TRUE}
+
+score3 <- function(row, w, v, lambda, penalty = function(x) sqrt(abs(x))){
+  
+  length_answers <- length(na.omit(row[Sc_cols]))
+  
+  output <- w * row[Sc_cols] - v * row[Sd_corrected_cols] + lambda * (penalty(w)+penalty(v))
+  
+  
+  output <- output/length_answers
+  
+  return(sum(output, na.rm = TRUE))
+}
+
+```
+
+To get the result we minimized the weighted gender gap in the subgroups:
+
+
+```{r , echo=TRUE}
+
+load( file = "Final_results.RData")
+# after calculating the score we aggregate it into avarege female and male score in the group
+head(DT_groups_casted)
+
+#calculate gender gaps
+DT_groups_casted[, gender_gap := abs(`F` - `M`) * group_count]
+
+#and calculate the objective function
+print(DT_groups_casted[, sum(gender_gap, na.rm = TRUE)])
+
+print(" then we minimize tis objective")
+
+```
+
+The final models were chosen based on the cross validation on the data. As this process was lengthy we do not present it here but only provide the function to crossvalidate on the data. "08-crossvalidate.R"
+
+
+```{r , echo=FALSE}
+source("08-crossvalidate.R")
+```
+
+
+
+
+As the optimization process is lengthy, the final values are saved to a file and the final function calls use the optimized parameters. The file to call on the competition data is "apply to data frame.R"
+
+To get the result we minimized the weighted gender gap in the subgroups:
+
+
+
+```{r , echo=TRUE}
+
+load( file = "Final_results.RData")
+print("final score weightings for the zero method")
+a[1:32]
+print("final score weightings for the first method")
+a1[1:32]
+print("final duration penalties  for the first method")
+a1[33:64]
+
+```
+
+
+
