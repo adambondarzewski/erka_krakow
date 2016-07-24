@@ -26,9 +26,10 @@ score <- function(row, w, v, lambda, penalty = function(x) x^2) {
 #' 
 calculate_score <- function(  w, v, lambda, score_fun = score
                             , DT_train = DT_train
-                            , DT_train_shrinked = DT_train_shrinked) {
+                            , DT_train_shrinked = DT_train_shrinked
+                            , penalty) {
     
-    DT_train$score_measured <- apply(DT_train_shrinked, 1, function(x) {score_fun(x, w = w, v = v, lambda)})
+    DT_train$score_measured <- apply(DT_train_shrinked, 1, function(x) {score_fun(x, w = w, v = v, lambda, penalty = penalty)})
     
     DT_groups <- DT_train[, .(score_measured = mean(score_measured), group_count = .N)
                     , by =.(Gender, SubGroup1)]
@@ -51,15 +52,17 @@ calculate_score <- function(  w, v, lambda, score_fun = score
 
 calculate_score_wrapper <- function( pars
                                     , DT_train = DT_train
-                                    , DT_train_shrinked = DT_train_shrinked) {
+                                    , DT_train_shrinked = DT_train_shrinked
+                                    , penalty) {
   
   w <- pars[1:32]
   v <- pars[33:64]
     
-  calculate_score(DT_train = DT_train, DT_train_shrinked = DT_train_shrinked, w = w, v = v, lambda = 1)
+  calculate_score(DT_train = DT_train, DT_train_shrinked = DT_train_shrinked, penalty = penalty, w = w, v = v, lambda = 1)
 }
 
 answer <- optim(par = rep(1/32, 64), calculate_score_wrapper
                 , DT_train_shrinked = DT_train_shrinked
                 , DT_train = DT_train
+                , penalty = function(x) x^2
                 , control = list(maxit = 10))
