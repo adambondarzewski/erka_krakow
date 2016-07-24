@@ -18,12 +18,7 @@ Sd_cols <- c(paste0('Du0', 1:9), paste0('Du', 10:32))
 
 DT_cleaned <- na.omit(extractFeatures2(DT))
 
-
-DT_cleaned$Institution=as.factor(DT_cleaned[,Institution])
 DT_cleaned$Gender=as.factor(DT_cleaned[,Gender])
-DT_cleaned$Group=as.factor(DT_cleaned[,Group])
-DT_cleaned$Region=as.factor(DT_cleaned[,Region])
-
 
 indexes_test <- sample(nrow(DT_cleaned), 100)
 
